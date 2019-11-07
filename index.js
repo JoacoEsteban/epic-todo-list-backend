@@ -1,11 +1,9 @@
 require('dotenv-flow').config()
 const express = require('express')
 const app = new express()
-const path = require('path')
 const http = require('http')
-const PORT = process.env.PORT || 5000
 const connectToDatabase = require('./db')
-const Todo = require('./Todo')
+const Todo = require('./Models/Todo')
 let bodyParser = require('body-parser')
 app.use(bodyParser.json()) // support json encoded bodies
 app.use(bodyParser.urlencoded({ extended: true })) // support encoded bodies
@@ -16,10 +14,12 @@ app.use((req, res, next) => {
 	next()
 })
 
-app.get('/', async (req, res) => {
+app.get('/todos', async (req, res) => {
     await connectToDatabase()
-    const todos = await Todo.find()
-    res.send({ v: 1, todos })
+    Todo.getTodos((err, todos) => {
+        if (err) throw err
+        res.send({ todos })
+    })
 })
 
 http.createServer(app).listen(process.env.PORT || 8000)
