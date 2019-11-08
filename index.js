@@ -10,15 +10,55 @@ app.use(bodyParser.urlencoded({ extended: true })) // support encoded bodies
 
 console.log(process.env.DB)
 app.use((req, res, next) => {
-	res.header('Access-Control-Allow-Origin', '*')
+    res.header('Access-Control-Allow-Origin', '*')
+    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept")
+    res.header('Access-Control-Allow-Methods', 'PUT, POST, GET, DELETE, OPTIONS')
 	next()
 })
 
-app.get('/todos', async (req, res) => {
+app.get('/api/todos', async (req, res) => {
     await connectToDatabase()
     Todo.getTodos((err, todos) => {
         if (err) throw err
-        res.send({ todos })
+        res.send(todos)
+    })
+})
+
+app.post('/api/todos', async (req, res) => {
+    await connectToDatabase()
+    let todo = req.body
+    Todo.createTodo(todo, (err, todo) => {
+        if (err) throw err
+        res.send(todo)
+    })
+})
+
+app.put('/api/todos/:_id', async (req, res) => {
+    await connectToDatabase()
+    let id = req.params._id
+    let todo = req.body
+    // console.log(todo, id)
+    Todo.updateTodo(id, todo, {}, (err, update) => {
+        if (err) throw err
+        res.send(update)
+    })
+})
+
+app.delete('/api/todos/:_id', async (req, res) => {
+    await connectToDatabase()
+    let id = req.params._id
+    Todo.deleteTodo(id, (err, todo) => {
+        if (err) throw err
+        res.send(todo)
+    })
+})
+
+app.post('/api/todos/check/:_id/', async (req, res) => {
+    await connectToDatabase()
+    let id = req.params._id
+    Todo.checkTodo(id, (err, todo) => {
+        if (err) throw err
+        res.send(todo)
     })
 })
 
